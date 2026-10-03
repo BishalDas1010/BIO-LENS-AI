@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>BioLens</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <div class="brand"><div class="logo">♥</div><div><h1>BioLens</h1><small>AI Health Screening Assistant</small></div></div>
+    <nav>
+      <a class="active" data-target="top">🏠 Home</a>
+      <a data-target="face">🧑 Face Analysis</a>
+      <a data-target="health">🛡 Health Information</a>
+      <a data-target="results">📊 Results</a>
+      <a data-target="chat">💬 Chat Assistant</a>
+      <a data-target="history">🕘 History</a>
+    </nav>
+    <a class="settings">⚙ Settings</a>
+  </aside>
+
+  <main id="top">
+    <header>
+      <div><h2>Welcome to <span>BioLens</span></h2>
+      <p>AI-powered health screening using facial analysis, vital signs and smart AI insights</p></div>
+      <div class="pill">Your health, our insight</div>
+    </header>
+
+    <section class="card steps">
+      <div class="step"><b class="on">1</b><strong>Upload Face</strong><small>Detect and analyze your face</small></div>
+      <div class="step"><b>2</b><strong>Enter Health Data</strong><small>Provide vitals and symptoms</small></div>
+      <div class="step"><b>3</b><strong>AI Analysis</strong><small>Screening rules + insights</small></div>
+      <div class="step"><b>4</b><strong>View Results</strong><small>Indicators and recommendations</small></div>
+    </section>
+
+    <div class="grid2">
+      <section class="card" id="face">
+        <h3>📷 1. Face Analysis</h3>
+        <p class="sub">Upload an image or use your webcam for face detection</p>
+        <div class="tabs">
+          <button id="tabUpload" class="tab active">Upload Image</button>
+          <button id="tabCamera" class="tab">Use Camera</button>
+        </div>
+        <div class="face-row">
+          <div id="drop" class="drop">
+            <div class="cloud">☁</div>
+            <strong>Drag &amp; drop an image here</strong>
+            <a id="browse">or click to browse</a>
+            <small>Supports: JPG, JPEG, PNG (Max 5MB)</small>
+            <input type="file" id="file" accept="image/jpeg,image/png" hidden>
+          </div>
+          <div id="preview" class="preview">
+            <video id="video" autoplay playsinline hidden></video>
+            <img id="img" alt="" hidden>
+            <div id="box" class="box" hidden><span>Face Detected</span></div>
+            <p id="previewMsg">No image</p>
+            <button id="snap" class="snap" hidden>Capture</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="card" id="health">
+        <h3>❤ 2. Health Information</h3>
+        <p class="sub">Enter your basic details, vital signs and symptoms</p>
+        <div class="form">
+          <div>
+            <h4>Basic Details</h4>
+            <label>Age<input id="age" type="number" value="22"></label>
+            <label>Gender<select id="gender"><option>Male</option><option>Female</option><option>Other</option></select></label>
+            <label>Height (cm)<input id="height" type="number" value="175"></label>
+            <label>Weight (kg)<input id="weight" type="number" value="70"></label>
+          </div>
+          <div class="right">
+            <h4>Vital Signs (if available)</h4>
+            <label>Heart Rate (bpm)<input id="hr" type="number" value="72"></label>
+            <label>SpO₂ (%)<input id="spo2" type="number" value="98"></label>
+            <label>Body Temp (°C)<input id="temp" type="number" step="0.1" value="36.7"></label>
+            <h4>Symptoms (optional)</h4>
+            <div class="checks">
+              <label><input type="checkbox" value="Fatigue" checked> Fatigue</label>
+              <label><input type="checkbox" value="Poor Sleep"> Poor Sleep</label>
+              <label><input type="checkbox" value="Headache"> Headache</label>
+              <label><input type="checkbox" value="Chest Discomfort"> Chest Discomfort</label>
+              <label><input type="checkbox" value="Dizziness"> Dizziness</label>
+              <label><input type="checkbox" value="Shortness of Breath"> Shortness of Breath</label>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <button id="analyze" class="analyze">📈 Analyze My Health</button>
+    <p id="error" class="error"></p>
+
+    <section class="card" id="results" hidden>
+      <h3>📊 Results</h3>
+      <div id="overall"></div>
+      <div id="indicators" class="ind"></div>
+      <h4>Recommendations</h4>
+      <ul id="recs"></ul>
+      <small id="disc"></small>
+    </section>
+
+    <div class="grid2">
+      <section class="card" id="chat">
+        <h3>💬 Chat Assistant</h3>
+        <div id="chatLog" class="chatlog"></div>
+        <div class="chatrow"><input id="chatInput" placeholder="Ask about SpO2, heart rate, BMI..."><button id="chatSend">Send</button></div>
+      </section>
+      <section class="card" id="history">
+        <h3>🕘 History</h3>
+        <div id="historyList"></div>
+      </section>
+    </div>
+  </main>
+</div>
+<script src="script.js"></script>
+</body>
+</html>
