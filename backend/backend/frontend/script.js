@@ -3,7 +3,7 @@ const $ = (id) => document.getElementById(id);
 let imageBlob = null;
 let stream = null;
 
-// ---------- sidebar navigation ----------
+//  sidebar navigation 
 document.querySelectorAll("nav a").forEach((a) => {
   a.onclick = () => {
     document.querySelectorAll("nav a").forEach((x) => x.classList.remove("active"));
@@ -13,7 +13,7 @@ document.querySelectorAll("nav a").forEach((a) => {
   };
 });
 
-// ---------- image upload ----------
+// image upload 
 const drop = $("drop"), file = $("file");
 drop.onclick = () => file.click();
 file.onchange = () => file.files[0] && setImage(file.files[0]);
@@ -67,7 +67,7 @@ function drawBox(b) {
   box.hidden = false;
 }
 
-// ---------- camera ----------
+// camera
 $("tabUpload").onclick = () => { setTab("upload"); stopCamera(); };
 $("tabCamera").onclick = async () => {
   setTab("camera");
@@ -105,6 +105,7 @@ $("analyze").onclick = async () => {
   $("error").textContent = "";
   const btn = $("analyze");
   const fd = new FormData();
+  
   fd.append("age", $("age").value);
   fd.append("gender", $("gender").value);
   fd.append("height", $("height").value);
