@@ -6,3 +6,10 @@ scikit-learn
 matplotlib
 streamlit
 pillow
+fastapi
+uvicorn
+jinja2
+joblib
+langgraph langchain-core
+langchain-groq langgraph langchain-core
+python-dotenv
