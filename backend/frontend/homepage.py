@@ -24,7 +24,7 @@ def _hero():
                     icon=":material/stethoscope:",
                     type="primary",
                     use_container_width=True,
-                    on_click=_go(body_condition_page),
+                    on_click=_go,
                     args=("Assessment",),
                 )
             with b2:
