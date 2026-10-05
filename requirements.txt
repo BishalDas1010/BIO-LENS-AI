@@ -13,3 +13,4 @@ joblib
 langgraph langchain-core
 langchain-groq langgraph langchain-core
 python-dotenv
+tavily-python langchain-community langgraph langchain-groq python-dotenv

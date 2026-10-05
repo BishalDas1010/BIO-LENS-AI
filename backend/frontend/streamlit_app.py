@@ -2,6 +2,8 @@ import streamlit as st
 import requests
 import plotly.graph_objects as go
 from assistant_page import assistant_page
+from medicine_page import medicine_page
+from homepage import home_page
 
 
 st.set_page_config(
@@ -113,9 +115,6 @@ with st.sidebar:
     )
 
 # web pages
-def home_page():
-    st.title("🏠 Home")
-    st.write("Welcome to BioLens- AI.")
 
 
 def body_condition_page():
@@ -344,10 +343,6 @@ def diabetes_page():
     st.title(" Diabetes & Face Scan")
     st.write("Diabetes assessment and facial analysis.")
 
-
-def medicine_page():
-    st.title(" Medicine Information")
-    st.write("Get information about medicines.")
 
 
 

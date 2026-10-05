@@ -15,7 +15,7 @@ load_dotenv()
 API_KEY = os.getenv("API_KEY")
 
 
-# ---------- LLM + Graph ----------
+#LLM + Graph 
 llm = ChatGroq(
     model="openai/gpt-oss-20b",
     temperature=0.7,
