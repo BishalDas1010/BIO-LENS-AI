@@ -17,15 +17,18 @@ SUGGESTIONS = [
 
 
 def _ask_backend(user_text: str) -> str:
-    """Send the whole chat history + health context to FastAPI."""
+    """Send the whole chat history + ALL health context to FastAPI."""
     # build payload from current history (including the just-added user msg)
     history = [
         {"role": m["role"], "content": m["content"]}
         for m in st.session_state.assistant_messages
     ]
+    
+    # FIXED: Added mental_health_context to the network payload
     payload = {
         "messages": history,
         "health_context": st.session_state.get("health_context"),
+        "mental_health_context": st.session_state.get("mental_health_context"), 
     }
 
     try:
@@ -48,16 +51,29 @@ def assistant_page():
             {"role": "assistant", "content": WELCOME}
         ]
 
-    # show last prediction badge if present
-    if st.session_state.get("health_context"):
-        r = st.session_state.health_context["result"]
-        color = "🔴" if r["prediction"] == 1 else "🟢"
-        st.info(
-            f"{color} I have your last body-condition result "
-            f"(**{r['label']}**, confidence {r['confidence']*100:.1f}%). "
-            "Ask me anything about it."
-        )
+    # --- SHOW BADGES FOR SYNCED DATA ---
+    col1, col2 = st.columns(2)
+    
+    with col1:
+        if st.session_state.get("health_context"):
+            r = st.session_state.health_context["result"]
+            color = "🔴" if r["prediction"] == 1 else "🟢"
+            st.info(
+                f"{color} Body Condition synced (**{r['label']}**)"
+            )
+            
+    with col2:
+        if st.session_state.get("mental_health_context"):
+            mh = st.session_state.mental_health_context
+            # Check if safety alert was triggered
+            if mh.get("safety_alert"):
+                st.error("🧠 Mental Health synced (⚠️ Safety Alert)")
+            else:
+                st.success(f"🧠 Mental Health synced (PHQ-9: {mh.get('phq9_score')}/27)")
+        else:
+            st.warning("🧠 No Mental Health data. Complete the assessment to sync.")
 
+    # --- CHAT CONTROLS ---
     if st.button("🧹 Clear chat"):
         st.session_state.assistant_messages = [
             {"role": "assistant", "content": WELCOME}

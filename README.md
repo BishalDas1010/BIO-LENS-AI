@@ -1,69 +1,255 @@
 # BioLens AI
 
-BioLens AI is a health screening and wellness assistant that combines machine learning, conversational AI, and medical information tools into one application. The project helps users assess their body condition, understand health risks, ask health questions, and look up medicine details.
+BioLens AI is a local web application for exploring health and wellness information. It brings together a body-condition screening model, mental-wellness questionnaires, a health chat assistant, and medicine information lookup.
 
-## Features
+> **Important:** BioLens AI is an educational and screening project, not a medical device. Its scores and AI responses are not diagnoses or treatment advice. Talk with a qualified health professional about medical concerns.
 
-- Body condition assessment using health metrics and an ML model
-- Heart disease risk prediction with model-based scoring
-- AI health assistant for lifestyle and wellness guidance
-- Medicine lookup and prescription-based medicine extraction
-- Diabetes and face-scan UI sections for future health analysis extensions
+## What you can do
 
-## Tech Stack
+Choose a page from the menu on the left side of the app:
 
-- Frontend: Streamlit
-- Backend: FastAPI
-- ML: scikit-learn, joblib, pandas, numpy
-- AI: LangChain, LangGraph, Groq
-- Computer vision: OpenCV, MediaPipe
-- Visualization: Matplotlib, Plotly
+- **Home:** Overview of the app.
+- **Body Condition:** Enter lifestyle and measurement information to get a model-generated `NO RISK` or `AT RISK` screening result. The page shows the model's class scores and selected measurements. A successful result is also made available as context to the AI Assistant during the current Streamlit session.
+- **Mental Health:** Complete a PHQ-9 questionnaire, a GAD-7 questionnaire, and a short wellness check. The app displays screening-score severity, a chart, and an optional AI-generated supportive summary.
+- **Medicine Information:** Search for information about a medicine, or upload/take a prescription photo to extract possible medicine names and then look one up.
+- **AI Assistant:** Ask general health and lifestyle questions. If you have completed assessments in this session, their results may be included in the chat request.
+- **Heart Disease and History:** These are currently simple placeholder pages; they do not yet provide a heart-disease prediction or saved assessment history.
 
-## Setup
+### Mental-health safety
 
-1. Create and activate a virtual environment:
+If you select any answer other than **Not at all** for PHQ-9 question 9, the app displays urgent support information and stops the normal final-report flow. It currently shows Tele-MANAS in India (`14416`) and emergency services in India (`112`). If you are in immediate danger, contact local emergency services or go to the nearest emergency department. If this application is used outside India, its displayed support contacts need to be updated for that location.
+
+## How the application works
+
+The project has two parts that run locally: a Streamlit website and a FastAPI service. The website sends requests to the service at `http://127.0.0.1:8000`.
+
+```text
+Your browser
+    |
+    v
+Streamlit website (port 8501)
+    |
+    | HTTP requests to 127.0.0.1:8000
+    v
+FastAPI service (port 8000)
+    |-- /predict                 Loads the saved scikit-learn model
+    |-- /chat                    Calls the Groq-powered health assistant
+    |-- /mental-health-absolution Generates a supportive summary (Groq)
+    |-- /medicine                Uses Groq and Tavily search
+    `-- /medicine/scan           Uses a Groq vision model on an image
+```
+
+### Body-condition assessment
+
+1. Enter the 16 values requested by the form: age, sleep, work, screen time, water, exercise, meals, caffeine, social interaction, heart rate, oxygen saturation (SpO2), temperature, systolic blood pressure, cholesterol, glucose, and insulin.
+2. The Streamlit page sends these values as JSON to `POST /predict`.
+3. FastAPI arranges the values in the column order saved in `models/model_columns.pkl` and passes them to the model in `models/health_model.pkl`.
+4. The page displays the predicted class (`NO RISK` or `AT RISK`), the model's class scores, and a confidence value.
+
+The model's output is only a software estimate based on its training. It is not a clinical risk calculation and should not be used to make healthcare decisions. The PDF download button on this page is currently only a visual control; it does not generate a PDF.
+
+### Mental-wellness assessment
+
+The questionnaire flow is on the **Mental Health** page:
+
+1. Answer the nine PHQ-9 questions (each answer scores 0–3).
+2. Answer the seven GAD-7 questions (each answer scores 0–3).
+3. Complete the sleep, mood, energy, concentration, stress, and social-comfort check.
+4. View the scores, severity labels, and wellness chart. You can optionally request a supportive summary from the backend.
+
+The answers and results are held in Streamlit session state for the current browser session. They are not saved as a history by this page. The final summary is generated by an external AI service, so do not treat it as a diagnosis.
+
+### Assistant and medicine lookup
+
+- The assistant sends its conversation, and any available assessment context, to `POST /chat`. The backend constructs a prompt and calls Groq through LangChain/LangGraph.
+- Medicine lookup sends a medicine name and optional question to `POST /medicine`. The backend uses Tavily web search and an AI model to summarize results and list sources.
+- Prescription scanning sends an uploaded image to `POST /medicine/scan`. A vision model attempts to read medicine names. Always verify extracted text against the original prescription with a pharmacist or clinician.
+
+## Project layout
+
+```text
+BIO-LENS-AI/
+├── backend/
+│   ├── api.py                       # FastAPI app, input schemas, and API routes
+│   ├── Chat_rag.py                  # Health chat and mental-wellness summary
+│   ├── medicine_agent.py            # Medicine search and image extraction
+│   └── frontend/
+│       ├── streamlit_app.py         # Main UI, navigation, and assessments
+│       ├── assistant_page.py        # AI Assistant interface
+│       ├── medicine_page.py         # Medicine lookup and prescription upload
+│       ├── homepage.py              # Home page
+│       └── heart_disease_page.py    # Separate/incomplete heart page
+├── models/
+│   ├── health_model.pkl             # Saved body-condition model
+│   └── model_columns.pkl            # Model input column order
+├── datasets/
+│   └── archive.zip                  # Project dataset archive
+├── Notebooks/
+│   └── m_model.ipynb                # Model exploration notebook
+├── utils/                           # Image/face-detection utilities
+├── requirements.txt                 # Python dependencies
+└── README.md
+```
+
+## Requirements
+
+- Python 3.10–3.12 is recommended.
+- Internet access is needed for Groq AI features and Tavily medicine search.
+- A **Groq API key** is needed for the assistant, mental-wellness summary, and prescription image scanning.
+- A **Tavily API key** is needed for medicine search.
+
+The body-condition model can run locally when its two model files are present. The other AI/search features depend on their API keys and internet connectivity.
+
+## Set up
+
+Open a terminal in the project root (the directory containing this README).
+
+### 1. Create a virtual environment and install packages
+
+**macOS/Linux**
 
 ```bash
 python3 -m venv .venv
 source .venv/bin/activate
+python -m pip install --upgrade pip
+python -m pip install -r requirements.txt
 ```
 
-2. Install dependencies:
+**Windows PowerShell**
+
+```powershell
+py -3.12 -m venv .venv
+.venv\Scripts\Activate.ps1
+python -m pip install --upgrade pip
+python -m pip install -r requirements.txt
+```
+
+If PowerShell blocks activation, use Command Prompt instead:
+
+```bat
+.venv\Scripts\activate.bat
+```
+
+Keep the environment activated in each terminal where you run the application.
+
+### 2. Configure API keys
+
+Create `backend/.env` and add your own keys:
+
+```dotenv
+API_KEY=your_groq_api_key
+TAVILY_API_KEY=your_tavily_api_key
+```
+
+Do not share or commit this file. The backend loads these values when it starts; restart the backend after changing the file. Configure both keys before launching the backend because its AI and medicine-search modules are initialized at startup.
+
+### 3. Start the FastAPI backend
+
+Open a **first terminal** in the project root, activate the virtual environment, then run:
+
+**macOS/Linux**
 
 ```bash
-pip install -r requirements.txt
+cd backend
+python -m uvicorn api:app --reload --host 127.0.0.1 --port 8000
 ```
 
-3. Add your Groq API key to a `.env` file:
+**Windows PowerShell**
+
+```powershell
+cd backend
+python -m uvicorn api:app --reload --host 127.0.0.1 --port 8000
+```
+
+Keep this terminal open. Check that the backend is responding by visiting `http://127.0.0.1:8000/`. It should return a small JSON status response. Interactive API documentation is at `http://127.0.0.1:8000/docs`.
+
+### 4. Start the Streamlit website
+
+Open a **second terminal** in the project root (not inside `backend`), activate the same virtual environment, and run:
 
 ```bash
-API_KEY=your_groq_api_key_here
+python -m streamlit run backend/frontend/streamlit_app.py
 ```
 
-4. Start the backend:
+Open the local address printed in the terminal, usually `http://localhost:8501`. Keep both terminals running while using the app.
+
+## API overview
+
+| Method | Path | Purpose |
+|---|---|---|
+| `GET` | `/` | Check whether the backend is running |
+| `POST` | `/predict` | Return the body-condition prediction and class scores |
+| `POST` | `/chat` | Get a reply to a conversation, with optional assessment context |
+| `POST` | `/mental-health-absolution` | Generate a mental-wellness summary |
+| `POST` | `/medicine` | Search for medicine information |
+| `POST` | `/medicine/scan` | Extract possible medicine names from an uploaded image |
+
+You can inspect request and response schemas in the interactive docs at `http://127.0.0.1:8000/docs` while the backend is running.
+
+Example `POST /predict` request:
+
+```json
+{
+  "age": 22,
+  "sleep_hours": 8,
+  "work_hours": 8,
+  "screen_time": 6,
+  "water_intake": 2.5,
+  "exercise": 2,
+  "meals_per_day": 3,
+  "caffeine_intake": 2,
+  "social_interaction": 3,
+  "heart_rate": 78,
+  "spo2": 98,
+  "temperature": 36.8,
+  "blood_pressure": 138,
+  "cholesterol": 210,
+  "glucose": 112,
+  "insulin": 22
+}
+```
+
+All 16 fields are required by the API. The example values are illustrative, not medical recommendations. A successful response contains `prediction`, `label`, `probability_class_0`, `probability_class_1`, and `confidence`.
+
+## Troubleshooting
+
+### The website says it cannot reach the backend
+
+- Check that the FastAPI terminal is still running.
+- Visit `http://127.0.0.1:8000/` and confirm it returns JSON.
+- The frontend is configured for port `8000`; make sure Uvicorn was started on that port.
+
+### The backend cannot find a model file
+
+Check that both files exist in the project root under `models/`:
+
+```text
+models/health_model.pkl
+models/model_columns.pkl
+```
+
+### Groq or Tavily reports an authentication error
+
+- Confirm `backend/.env` contains the exact variable names `API_KEY` and `TAVILY_API_KEY`.
+- Check that the key is valid and has access to the requested service.
+- Restart the backend after updating the file.
+
+### The Streamlit page cannot import a module
+
+Run Streamlit from the project root, using the path shown below. Do not start it from `backend/frontend`.
 
 ```bash
-uvicorn backend.api:app --reload --host 0.0.0.0 --port 8000
+python -m streamlit run backend/frontend/streamlit_app.py
 ```
 
-5. Start the frontend in a second terminal:
+### A medicine lookup or scan is empty or incorrect
 
-```bash
-streamlit run backend/frontend/streamlit_app.py
-```
+The search and image-reading features rely on external services. Check the API keys, internet connection, and image clarity. Search results and extracted medicine names can be incomplete or wrong; independently verify medical information and prescription details.
 
-The Streamlit app is configured to call the backend at `http://127.0.0.1:8000`, so the FastAPI server must be running before opening the UI.
+## Privacy and responsible use
 
-## Main API Endpoints
-
-- `POST /predict` — health-risk prediction from lifestyle and biometrics
-- `POST /chat` — health assistant conversation
-- `POST /medicine` — medicine information lookup
-- `POST /medicine/scan` — prescription image medicine extraction
-
-## Notes
-
-- This application is intended for screening, education, and health awareness support.
-- It is not a substitute for professional medical diagnosis or treatment.
-- Some AI features depend on valid environment credentials and external model access.
-
+- Do not use this app as a substitute for a doctor, pharmacist, or mental-health professional.
+- AI output, model predictions, web results, and prescription text extraction may be inaccurate.
+- Assessment data and chat messages are kept in Streamlit session state during the current session. Requests for AI features send relevant messages or assessment context to the configured backend and external providers (Groq and/or Tavily).
+- Do not enter sensitive personal health information on a shared or publicly accessible deployment.
+- The application does not implement production authentication or encrypted health-data storage, and its model and assessments are not clinically validated.

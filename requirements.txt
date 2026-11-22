@@ -1,16 +1,20 @@
-opencv-python
+fastapi
+joblib
+jinja2
+langchain-community
+langchain-core
+langchain-groq
+langgraph
+matplotlib
 mediapipe
 numpy
+opencv-python
 pandas
-scikit-learn
-matplotlib
-streamlit
 pillow
-fastapi
-uvicorn
-jinja2
-joblib
-langgraph langchain-core
-langchain-groq langgraph langchain-core
+plotly
 python-dotenv
-tavily-python langchain-community langgraph langchain-groq python-dotenv
+python-multipart
+scikit-learn
+streamlit
+tavily-python
+uvicorn
